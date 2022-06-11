@@ -1,3 +1,8 @@
+# add
+*.env
+
+
+
 # Miscellaneous
 *.class
 *.log
