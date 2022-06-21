@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'models/NotionAPI.dart';
 import 'widgets/widgetProperties.dart';
+import 'widgets/widgetStatful.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'GlobalData.dart';
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'notion API'),
     );
   }
 }
@@ -36,20 +37,42 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-  var _result = '';
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is removed from the
+    // widget tree.
+    for (int i = 0; i < myTextController.length; i++) {
+      myTextController[i].dispose();
+    }
+
+    notionTokenController.dispose();
+    dbIDController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
     super.initState();
     NotionAPI().getData();
+    notionTokenController.text = 'totototo';
   }
 
   void _incrementCounter() async {
-    setState(() {
-      _counter++;
-    });
+    _counter++;
+    setState(() {});
+  }
+
+  void _getDBproperties() async {
     await NotionAPI().getDatabase();
     await NotionAPI().setData();
+    setState(() {});
+  }
+
+  void _upDBproperties() async {
+    await NotionAPI().getDatabase();
+    await NotionAPI().setData();
+    setState(() {});
   }
 
   @override
@@ -62,6 +85,42 @@ class _MyHomePageState extends State<MyHomePage> {
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            SizedBox(
+              height: 20,
+            ),
+            TextFormField(
+              //token
+              controller: notionTokenController,
+              decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  labelText: 'Token'),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            TextFormField(
+                //DBID
+                controller: dbIDController,
+                decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    labelText: 'DataBase ID')),
+            SizedBox(
+              height: 20,
+            ),
+            FloatingActionButton(
+                onPressed: _getDBproperties,
+                tooltip: 'getDBproperties',
+                child: Container(child: const Text('Get'))),
+            Column(
+              children: [
+                Text(DateTime.now().toString()),
+                Text(getStatusMessage),
+              ],
+            ),
             const Text(
               'You have pushed the button this many times:',
             ),
@@ -69,10 +128,12 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headline4,
             ),
-            for (int i = 0; i < dbNameList.length; i++)
-              widgetProperties(dbNameList[i], dbTypeList[i]),
-            // showProperties(dbNameList[0], dbTypeList[0]),
-            // showProperties(dbNameList[1], dbTypeList[1]),
+            for (int i = 0; i < myTextController.length; i++)
+              widgetProperties(i),
+            FloatingActionButton(
+                onPressed: _upDBproperties,
+                tooltip: 'upDBproperties',
+                child: Container(child: const Text('Upload'))),
           ],
         ),
       ]),
